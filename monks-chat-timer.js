@@ -47,13 +47,14 @@ export class MonksChatTimer {
 
         MonksChatTimer.registerHotKeys();
 
-        let oldMessagePatterns = ChatLog.prototype.constructor.MESSAGE_PATTERNS;
-        foundry.applications.sidebar.tabs.ChatLog.prototype.constructor.MESSAGE_PATTERNS = (() => {
-            let MESSAGE_PATTERNS = {
-                timer: new RegExp('^(/timer )(-?[0-9:]+)(?: ([^()]+?))?(?: \((.+?)\))?$', "i")
-            };
-            return foundry.utils.mergeObject(MESSAGE_PATTERNS, oldMessagePatterns);
-        })();
+        foundry.applications.sidebar.tabs.ChatLog.CHAT_COMMANDS["timer"] = {
+            rgx: new RegExp('^(/timer )(-?[0-9:]+)(?: ([^()]+?))?(?: \((.+?)\))?$', "i"),
+            fn: MonksChatTimer.processTimerCommand
+        }
+    }
+
+    static processTimerCommand(command, match, chatData, createOptions) {
+
     }
 
     static async ready() {
@@ -86,7 +87,7 @@ export class MonksChatTimer {
         let messageData = {
             user: game.user.id,
             speaker: speaker,
-            type: CONST.CHAT_MESSAGE_STYLES.OOC,
+            style: CONST.CHAT_MESSAGE_STYLES.OOC,
             content: content,
             flags: {
                 core: { canPopout: true },
@@ -102,7 +103,7 @@ export class MonksChatTimer {
         if (options.whisper)
             messageData.whisper = options.whisper;
 
-        ChatMessage.create(messageData);
+        foundry.documents.ChatMessage.implementation.create(messageData);
     }
 }
 
@@ -122,7 +123,7 @@ Hooks.on("chatCommandsReady", (chatCommands) => {
                 let time = ((Math.abs(timePart[0]) + (timePart.length > 1 ? Math.abs(timePart[1]) * 60 : 0) + (timePart.length > 2 ? Math.abs(timePart[2]) * 3600 : 0)) * 1000) * (match[1].startsWith('-') ? -1 : 1);
 
 
-                let flavor = match.length > 2 ? match[2].trim() : "";
+                let flavor = match.length > 2 ? (match[2] || "").trim() : "";
                 let followup = "";
                 if (flavor && flavor.startsWith("flavor:"))
                     flavor = flavor.substr(7).trim();
@@ -248,12 +249,12 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
                     if (game.user.isTheGM) {
                         message.update({ content: content[0].outerHTML, flags: { 'monks-chat-timer': { 'complete': true } } });
                         if (message.getFlag('monks-chat-timer', 'followup')) {
-                            ChatMessage.create({
+                            foundry.documents.ChatMessage.implementation.create({
                                 user: game.user.id,
                                 flavor: message.getFlag('monks-chat-timer', 'flavor'),
                                 content: message.getFlag('monks-chat-timer', 'followup'),
                                 speaker: null,
-                                type: CONST.CHAT_MESSAGE_STYLES.OOC,
+                                style: CONST.CHAT_MESSAGE_STYLES.OOC,
                                 whisper: message.whisper
                             }, {});
                         }

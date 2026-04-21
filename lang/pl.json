@@ -1,0 +1,12 @@
+{
+	"MonksChatTimer.Complete": "Zakończono",
+	"MonksChatTimer.CreateChatCountdownTimer": "Utwórz licznik czasu na czacie",
+	"MonksChatTimer.Duration": "Czas trwania",
+	"MonksChatTimer.For": "Dla",
+	"MonksChatTimer.Flavor": "Smaczek",
+	"MonksChatTimer.FollowUp": "Kontynuacja",
+
+	"MonksChatTimer.for.Everyone": "Każdy",
+	"MonksChatTimer.for.GMOnly": "Tylko MG",
+	"MonksChatTimer.for.TriggeringPlayer": "Gracz wyzwalający"
+}
